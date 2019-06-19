@@ -7,7 +7,7 @@ CREATE TABLE tipo_usuario(
 );
 
 
-INSERT INTO tipo_usuario VALUES(NULL,1); #administrador
+INSERT INTO tipo_usuario VALUES(NULL,1); #profe
 INSERT INTO tipo_usuario VALUES(NULL,2); #alumno
 
 CREATE TABLE usuario(
@@ -20,6 +20,8 @@ CREATE TABLE usuario(
 
 INSERT INTO usuario VALUES(NULL,"11-1",'pass',"Arcangel",1); #admin
 INSERT INTO usuario VALUES(NULL,"22-2",'pass',"Victor",2); #alumno
+INSERT INTO usuario VALUES(NULL,'33-3','pass','Anuel',2);
+INSERT INTO usuario VALUES(NULL,'44,4','pass','Junh',2);
 
 SELECT * FROM usuario
 
@@ -31,6 +33,8 @@ CREATE TABLE palabra(
     imagen VARCHAR(600)
 );
 
+select * from palabra
+
 INSERT INTO palabra VALUES(NULL,'Planificacion','planear una accion','Planear la clase a ejecutar', 'https://image.slidesharecdn.com/planificaciondeeducacionparvularia2y3-091221200313-phpapp02/95/planificacion-de-educacion-parvularia-2-y-3-1-728.jpg?cb=1261425831');
 INSERT INTO palabra VALUES(NULL,'Esfinter','Músculo en forma de anillo que cierra y abre la abertura de determinados conductos naturales del cuerpo','Un niño que no puede aguantarse las ganas de orinar','http://saludycuidadosdelparvulo.blogspot.com/2011/12/control-de-esfinter.html')
 
@@ -40,7 +44,7 @@ CREATE TABLE usuario_palabra(
     fk_palabra INT REFERENCES palabra(id)
 );
 
-INSERT INTO usuario_palabra VALUES(NULL,1,1);
+INSERT INTO usuario_palabra VALUES(NULL,2,1);
 INSERT INTO usuario_palabra VALUES(NULL,2,2);
 
 CREATE TABLE asignatura(
@@ -87,6 +91,26 @@ FROM 	palabra, usuario, usuario_palabra
 WHERE 	(usuario_palabra.fk_palabra = palabra.id AND usuario_palabra.fk_usuario = usuario.id)
 AND 	usuario.id = 2
 
-SELECT MAX(id) FROM palabra
+SELECT * FROM palabra
 
 SELECT COUNT(*) FROM palabra WHERE nombre LIKE '%java%'
+
+SELECT id,nombre,run, pass FROM usuario WHERE tipo_fk = 2
+
+SELECT COUNT(*) FROM palabra, usuario, usuario_palabra WHERE (usuario_palabra.fk_palabra = palabra.id AND usuario_palabra.fk_usuario = usuario.id)
+AND usuario.id = 2
+AND palabra.nombre LIKE '%caca%' 
+
+
+SELECT COUNT(*) FROM palabra, usuario, usuario_palabra WHERE (usuario_palabra.fk_palabra = palabra.id AND usuario_palabra.fk_usuario = usuario.id)
+AND usuario.id = 2
+AND palabra.nombre LIKE '%espinazo%'
+
+SELECT * FROM palabra
+
+UPDATE palabra SET nombre = 'cogote', descripcion = 'parte que esta bajo la cabeza', ejemplo = 'duele el cuello' WHERE id = 6
+
+SELECT 	palabra.id, palabra.nombre, palabra.descripcion, palabra.ejemplo 
+FROM 	palabra, usuario, usuario_palabra 
+WHERE 	palabra.nombre LIKE 'eS%' AND (usuario_palabra.fk_palabra = palabra.id AND usuario_palabra.fk_usuario = usuario.id)
+AND 	usuario.id = 2

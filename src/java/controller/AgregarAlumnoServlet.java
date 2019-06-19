@@ -1,10 +1,9 @@
-package controller;
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package controller;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -24,8 +23,8 @@ import model.dao.DAO_Usuario;
  *
  * @author JOAQUIN CABELLO
  */
-@WebServlet(urlPatterns = {"/iniciar.do"})
-public class inciarSesionServlet extends HttpServlet {
+@WebServlet(name = "AgregarAlumnoServlet", urlPatterns = {"/agregarAlumno.do"})
+public class AgregarAlumnoServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -36,32 +35,34 @@ public class inciarSesionServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
-        String rut = request.getParameter("rut");
-        String pass = request.getParameter("pass");
+        Usuario u = new Usuario();
+        u.setNombre(request.getParameter("nombre"));
+        u.setRun(request.getParameter("rut"));
+        u.setPass(request.getParameter("rut"));
+        u.setTipo_fk("2");
         
         try {
             DAO_Usuario d_u = new DAO_Usuario();
+            HttpSession sesion = request.getSession();
             
-            if(d_u.existeUser(rut, pass) == true){
-                Usuario u = d_u.getUsuario(rut, pass);
-                HttpSession sesion = request.getSession();
-
-                sesion.setAttribute("usuario", u);
-                System.out.println(u.getId() +"-"+ u.getNombre() +"-"+u.getRun() +"-"+ u.getTipo_fk());
-                
-                if(u.getTipo_fk().equals("1")){
-                    request.getRequestDispatcher("inicioProfe.jsp").forward(request, response);
-                }else{
-                    request.getRequestDispatcher("inicioAlumno.jsp").forward(request, response);
-                }
+            if(d_u.existeUsuarioPorRut(u.getRun()) == false){
+                d_u.create(u);
+                sesion.setAttribute("mensaje", "Alumno agregado con existo");
             }else{
-                request.getRequestDispatcher("error.jsp").forward(request, response);
+                sesion.setAttribute("mensaje", "Rut de alumno ingresado ya existe en la base de datos del sistema");
             }
             
+            request.getRequestDispatcher("agregarAlumnos.jsp").forward(request, response);
         } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(inciarSesionServlet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(AgregarAlumnoServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
         
+        
     }
+
+    @Override
+    public String getServletInfo() {
+        return "Short description";
+    }// </editor-fold>
 
 }

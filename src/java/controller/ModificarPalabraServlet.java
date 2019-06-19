@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package controller;
 
 import java.io.IOException;
@@ -15,15 +10,18 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import model.clases.Palabra;
+import model.clases.Usuario;
 import model.dao.DAO_Palabra;
+import model.dao.DAO_Usuario;
 
 /**
  *
  * @author JOAQUIN CABELLO
  */
-@WebServlet(name = "AgregarPalabraServlet", urlPatterns = {"/agregarPalabra.do"})
-public class AgregarPalabraServlet extends HttpServlet {
+@WebServlet(name = "ModificarPalabraServlet", urlPatterns = {"/modificar.do"})
+public class ModificarPalabraServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -34,34 +32,34 @@ public class AgregarPalabraServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String palabra = request.getParameter("nomPalabra");
-        String significado = request.getParameter("descipcion");
-        String ejemplo = request.getParameter("ejemplo");
         String idUsuario = request.getParameter("idUsuario");
 
         Palabra p = new Palabra();
-        p.setNombre(palabra);
-        p.setDescripcion(significado);
-        p.setEjemplo(ejemplo);
+
+        p.setId(request.getParameter("idPalabraMod"));
+        p.setNombre(request.getParameter("nombre"));
+        p.setDescripcion(request.getParameter("descripcion"));
+        p.setEjemplo(request.getParameter("ejemplo"));
+
+        HttpSession sesion = request.getSession();
 
         try {
-            DAO_Palabra d_p = new DAO_Palabra();
+            if (new DAO_Usuario().getUsuarioPorId(idUsuario).getTipo_fk().equals("1")) {
+                String idAlumno = request.getParameter("idAlumno");
+                
+                sesion.setAttribute("idAlumno", idAlumno);
+                sesion.setAttribute("idProfe", idUsuario);
+                
+                new DAO_Palabra().update(p);
 
-            if (d_p.existePalabra(palabra,idUsuario) == false) {
-                d_p.create(p);
-                int idPalabra = d_p.ultimaPalabraAñadida();
-
-                d_p.createPalabraUsuario(Integer.parseInt(idUsuario), idPalabra);
-            }else{
-                //response.sendError(12, "error de ingreso, palabra ya existe");
+                request.getRequestDispatcher("alumno.jsp").forward(request, response);
+            } else {
+                new DAO_Palabra().update(p);
                 request.getRequestDispatcher("inicioAlumno.jsp").forward(request, response);
             }
-
         } catch (ClassNotFoundException | SQLException ex) {
-            Logger.getLogger(AgregarPalabraServlet.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(ModificarPalabraServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        request.getRequestDispatcher("inicioAlumno.jsp").forward(request, response);
 
     }
 
